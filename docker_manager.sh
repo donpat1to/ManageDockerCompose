@@ -24,7 +24,6 @@ MOVE_UP=$'\e[1A'        # Move cursor up 1 line
 MOVE_START=$'\r'        # Move cursor to start of line
 
 # Menu state
-#MENU_LINES=0
 MENU_START_LINE=0
 
 check_sudo() {
@@ -90,14 +89,14 @@ main_menu() {
             "${GREEN}2)${NC} Restart Docker Compose" \
             "${GREEN}3)${NC} Update Server" \
             "${RED}0)${NC} Exit"
-        
+
         echo -ne "${YELLOW}➤ Your choice: ${NC}"
         read -r opt
-        
+
         case "$opt" in
             1) stop_menu ;;
             2) restart_menu ;;
-            3) sudo ./update_server.sh ;;
+            3) sudo ./scripts/update_server.sh ;;
             0) echo -e "\n${GREEN}Goodbye!${NC}"; exit 0 ;;
             *) show_error "Invalid selection" ;;
         esac
@@ -110,12 +109,12 @@ stop_menu() {
             "${GREEN}1)${NC} Stop all" \
             "${GREEN}2)${NC} Stop selected" \
             "${YELLOW}3)${NC} Back"
-        
+
         echo -ne "${YELLOW}➤ Your choice: ${NC}"
         read -r subopt
-        
+
         case "$subopt" in
-            1) sudo ./shutdown_docker_services.sh all; break ;;
+            1) sudo ./scripts/shutdown_docker_services.sh all; break ;;
             2) select_services "stop"; break ;;
             3) break ;;
             *) show_error "Invalid selection" ;;
@@ -129,16 +128,16 @@ restart_menu() {
             "${GREEN}1)${NC} Restart all" \
             "${GREEN}2)${NC} Restart selected" \
             "${YELLOW}3)${NC} Back"
-        
+
         echo -ne "${YELLOW}➤ Your choice: ${NC}"
         read -r subopt
-        
+
         case "$subopt" in
-            1) 
+            1)
                 echo -ne "${YELLOW}Update compose files first? (y/n): ${NC}"
                 read -r update
-                [[ "$update" =~ ^[Yy] ]] && sudo ./update_docker_services.sh all
-                sudo ./restart_docker_services.sh all
+                [[ "$update" =~ ^[Yy] ]] && sudo ./scripts/update_docker_services.sh all
+                sudo ./scripts/restart_docker_services.sh all
                 break
                 ;;
             2) select_services "restart"; break ;;
@@ -182,14 +181,14 @@ select_services() {
         if [ ${#selected[@]} -gt 0 ]; then
             case "$action" in
                 "stop")
-                    sudo ./shutdown_docker_services.sh "${selected[@]}"
+                    sudo ./scripts/shutdown_docker_services.sh "${selected[@]}"
                     return 0
                     ;;
                 "restart")
                     echo -ne "${YELLOW}Update compose files first? (y/n): ${NC}"
                     read -r update
-                    [[ "$update" =~ ^[Yy] ]] && sudo ./update_docker_services.sh "${selected[@]}"
-                    sudo ./restart_docker_services.sh "${selected[@]}"
+                    [[ "$update" =~ ^[Yy] ]] && sudo ./scripts/update_docker_services.sh "${selected[@]}"
+                    sudo ./scripts/restart_docker_services.sh "${selected[@]}"
                     return 0
                     ;;
             esac
