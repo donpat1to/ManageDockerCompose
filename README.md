@@ -31,6 +31,6 @@ A secure, interactive CLI tool for managing Docker Compose environments on Ubunt
 
 ### Setup
 ```bash
-git clone https://github.com/donpat1to/docker-compose-manager.git
+git clone https://github.com/donpat1to/ManageDockerCompose.git
 cd docker-compose-manager
 chmod +x *.sh
