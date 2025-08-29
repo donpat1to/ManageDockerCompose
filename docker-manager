@@ -26,6 +26,9 @@ MOVE_START=$'\r'        # Move cursor to start of line
 # Menu state
 MENU_START_LINE=0
 
+# Get absolute path to the folder where this script is located
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 check_sudo() {
     if [[ $EUID -ne 0 ]]; then
         echo -e "${YELLOW}Root privileges required. Please enter your password:${NC}"
@@ -96,7 +99,7 @@ main_menu() {
         case "$opt" in
             1) stop_menu ;;
             2) restart_menu ;;
-            3) sudo ./scripts/update_server.sh ;;
+            3) sudo "$SCRIPT_DIR/scripts/update_server.sh" ;;
             0) echo -e "\n${GREEN}Goodbye!${NC}"; exit 0 ;;
             *) show_error "Invalid selection" ;;
         esac
@@ -114,7 +117,7 @@ stop_menu() {
         read -r subopt
 
         case "$subopt" in
-            1) sudo ./scripts/shutdown_docker_services.sh all; break ;;
+            1) sudo "$SCRIPT_DIR/scripts/shutdown_docker_services.sh" all; break ;;
             2) select_services "stop"; break ;;
             3) break ;;
             *) show_error "Invalid selection" ;;
@@ -136,8 +139,8 @@ restart_menu() {
             1)
                 echo -ne "${YELLOW}Update compose files first? (y/n): ${NC}"
                 read -r update
-                [[ "$update" =~ ^[Yy] ]] && sudo ./scripts/update_docker_services.sh all
-                sudo ./scripts/restart_docker_services.sh all
+                [[ "$update" =~ ^[Yy] ]] && sudo "$SCRIPT_DIR/scripts/update_docker_services.sh" all
+                sudo "$SCRIPT_DIR/scripts/restart_docker_services.sh" all
                 break
                 ;;
             2) select_services "restart"; break ;;
@@ -181,14 +184,14 @@ select_services() {
         if [ ${#selected[@]} -gt 0 ]; then
             case "$action" in
                 "stop")
-                    sudo ./scripts/shutdown_docker_services.sh "${selected[@]}"
+                    sudo "$SCRIPT_DIR/scripts/shutdown_docker_services.sh" "${selected[@]}"
                     return 0
                     ;;
                 "restart")
                     echo -ne "${YELLOW}Update compose files first? (y/n): ${NC}"
                     read -r update
-                    [[ "$update" =~ ^[Yy] ]] && sudo ./scripts/update_docker_services.sh "${selected[@]}"
-                    sudo ./scripts/restart_docker_services.sh "${selected[@]}"
+                    [[ "$update" =~ ^[Yy] ]] && sudo "$SCRIPT_DIR/scripts/update_docker_services.sh" "${selected[@]}"
+                    sudo "$SCRIPT_DIR/scripts/restart_docker_services.sh" "${selected[@]}"
                     return 0
                     ;;
             esac

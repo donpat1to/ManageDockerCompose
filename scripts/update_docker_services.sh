@@ -12,14 +12,27 @@ timestamp() {
 
 echo "[$(timestamp)] Starting Docker Compose update process..."
 
-# Discover all docker-compose.yaml files under /srv
 compose_files=()
-while IFS= read -r -d '' file; do
-    compose_files+=("$file")
-done < <(find /srv -maxdepth 2 -type f -name "docker-compose.yaml" -print0)
+
+if [[ "$1" == "all" ]]; then
+    # Discover all docker-compose.yaml files under /srv
+    while IFS= read -r -d '' file; do
+        compose_files+=("$file")
+    done < <(find /srv -maxdepth 2 -type f -name "docker-compose.yaml" -print0)
+    shift
+else
+    # Use only the provided service directories
+    for dir in "$@"; do
+        if [[ -f "$dir/docker-compose.yaml" ]]; then
+            compose_files+=("$dir/docker-compose.yaml")
+        else
+            echo "[$(timestamp)] WARNING: No docker-compose.yaml in $dir"
+        fi
+    done
+fi
 
 if [[ ${#compose_files[@]} -eq 0 ]]; then
-    echo "[$(timestamp)] No docker-compose.yaml files found under /srv. Exiting."
+    echo "[$(timestamp)] No docker-compose.yaml files found. Exiting."
     exit 0
 fi
 
