@@ -14,11 +14,11 @@ echo "[$(timestamp)] Starting Docker Compose update process..."
 
 compose_files=()
 
-if [[ "$1" == "all" ]]; then
+if [[ "$1" == "all" || $# -eq 0 ]]; then
     # Discover all docker-compose.yaml files under /srv
     while IFS= read -r -d '' file; do
         compose_files+=("$file")
-    done < <(find /srv -maxdepth 2 -type f -name "docker-compose.yaml" -print0)
+    done < <(find /srv -maxdepth 3 -type f -name "docker-compose.yaml" -print0)
     shift
 else
     # Use only the provided service directories
